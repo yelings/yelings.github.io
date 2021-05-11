@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/yelings.github.io/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/yelings.github.io/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/yelings.github.io/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/yelings.github.io/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/yelings.github.io/css/main.css">
+
+
+<link rel="stylesheet" href="/yelings.github.io/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yelings.github.io","root":"/yelings.github.io/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="通过本节实现对Android的Settings模块进行了解，主要内容包括： （1）Settings模块原理。 （2）Settings模块实例。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android开发-Settings">
+<meta property="og:url" content="http://yelings.github.io/2021/03/13/Android%E5%BC%80%E5%8F%91-Settings/index.html">
+<meta property="og:site_name" content="Ye Ling&#39;s blog">
+<meta property="og:description" content="通过本节实现对Android的Settings模块进行了解，主要内容包括： （1）Settings模块原理。 （2）Settings模块实例。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yelings.github.io/img/Android%E5%BC%80%E5%8F%91-Settings/0.png">
+<meta property="og:image" content="http://yelings.github.io/img/Android%E5%BC%80%E5%8F%91-Settings/1-1615622222113.jpg">
+<meta property="og:image" content="http://yelings.github.io/img/Android%E5%BC%80%E5%8F%91-Settings/2.jpg">
+<meta property="og:image" content="http://yelings.github.io/img/Android%E5%BC%80%E5%8F%91-Settings/3.jpg">
+<meta property="og:image" content="http://yelings.github.io/img/Android%E5%BC%80%E5%8F%91-Settings/4.jpg">
+<meta property="og:image" content="http://yelings.github.io/img/Android%E5%BC%80%E5%8F%91-Settings/Settings1.png">
+<meta property="og:image" content="http://yelings.github.io/img/Android%E5%BC%80%E5%8F%91-Settings/Settings2.png">
+<meta property="og:image" content="http://yelings.github.io/img/Android%E5%BC%80%E5%8F%91-Settings/Settings3.png">
+<meta property="og:image" content="http://yelings.github.io/img/Android%E5%BC%80%E5%8F%91-Settings/Settings4.png">
+<meta property="article:published_time" content="2021-03-12T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-04-02T04:45:27.862Z">
+<meta property="article:author" content="Ye Ling">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yelings.github.io/img/Android%E5%BC%80%E5%8F%91-Settings/0.png">
+
+<link rel="canonical" href="http://yelings.github.io/2021/03/13/Android%E5%BC%80%E5%8F%91-Settings/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Android开发-Settings | Ye Ling's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/yelings.github.io/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Ye Ling's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/yelings.github.io/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/yelings.github.io/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/yelings.github.io/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/yelings.github.io/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/yelings.github.io/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yelings.github.io/2021/03/13/Android%E5%BC%80%E5%8F%91-Settings/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/yelings.github.io/images/touxiang.jpg">
+      <meta itemprop="name" content="Ye Ling">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ye Ling's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Android开发-Settings
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-13 00:00:00" itemprop="dateCreated datePublished" datetime="2021-03-13T00:00:00+08:00">2021-03-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-04-02 12:45:27" itemprop="dateModified" datetime="2021-04-02T12:45:27+08:00">2021-04-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/yelings.github.io/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>通过本节实现对Android的Settings模块进行了解，主要内容包括：</p>
+<p>（1）Settings模块原理。</p>
+<p>（2）Settings模块实例。</p>
+<a id="more"></a>
+
+<p>本文主要参考文档：</p>
+<p>[Settings][<a target="_blank" rel="noopener" href="https://developer.android.google.cn/reference/android/provider/Settings?hl=zh-cn%5D">https://developer.android.google.cn/reference/android/provider/Settings?hl=zh-cn]</a> ；</p>
+<p>[浅谈Android Settings模块架构(1)][<a target="_blank" rel="noopener" href="https://www.2cto.com/kf/201603/496617.html]">https://www.2cto.com/kf/201603/496617.html]</a> 。</p>
+<h2 id="Settings模块"><a href="#Settings模块" class="headerlink" title="Settings模块"></a>Settings模块</h2><h3 id="一、Settings模块原理"><a href="#一、Settings模块原理" class="headerlink" title="一、Settings模块原理"></a>一、Settings模块原理</h3><p>Settings提供程序包含全局系统级设备首选项。Settings的主要功能就是改变系统配置，Settings是如何实现修改后能改变系统配置的呢？Settings又是采用怎样的架构实现的呢？Settings和SettingsProvider。SettingsProvider继承ContentProvider，ContentProvider在android中主要扮演着数据共享的角色。SettingsProvider中有一个数据库，并且这个数据库是对外公开的。Settings会对SettingsProvider中的数据库进行操作和监听，Settings大部分操作的就是SettingsProvider中的数据，也有一些直接操作系统属性的等等。当用户在修改系统设置时，大部分实际上是在修改SettingsProvider中的值，当SettingsProvider数据库中的值被改变时，一些系统服务什么的就会监听到，这时候就会通过jni等当时操作底层，从而达到系统属性或配置改变的效果。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Settings涉及的模块</span><br><span class="line">	4.0设置的layout有很大的改变，将设置分为四个部分：</span><br><span class="line">	WIRELESS ＆ NETWORKS   ：SIM卡管理，流量使用情况，飞行模式，VPN，网络共享等</span><br><span class="line">	DEVICE ：   情景模式，显示，存储，电池，应用程序</span><br><span class="line">	PERSONAL：  账户与同步，位置服务，安全，语言和输入法，备份和重置</span><br><span class="line">	SYSTEM：    日期和时间，定时开关及，辅助功能，开发人员选项，关于手机</span><br><span class="line">常见的获取和设置系统属性的方法有：</span><br><span class="line">    getString(param1,param2) &lt;---&gt; putString(param1,param2)</span><br><span class="line">    getInt(param1,param2)    &lt;---&gt;  putInt(param1,param2)</span><br><span class="line">    getLong(param1,param2)   &lt;---&gt;  putLong(param1,param2)</span><br><span class="line">    getConfiguration(param1,param2)  &lt;---&gt;   putConfiguration(param1,param2)</span><br><span class="line">    getFloat(param1,param2)   &lt;---&gt;  putFloat(param1,param2)</span><br></pre></td></tr></table></figure>
+<p>**1.**目录结构</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">alps/packages/apps/Settings/    <span class="comment">#Settings源码位置</span></span><br><span class="line">alps/frameworks/base/packages/SettingsProvider/  <span class="comment">#SettingsProvider源码</span></span><br><span class="line">alps/frameworks/base/core/java/android/provider/Settings.java</span><br><span class="line">/data/data/com.android.providers.settings/databases/settings.db  <span class="comment">#db在数据库中存在的位置</span></span><br><span class="line"></span><br><span class="line">com.android.settings.Settings类                  <span class="comment">#设置页面的Activity</span></span><br><span class="line"><span class="comment">#这些类都是继承自Fragment类。相关的模块设置的入口类如下：</span></span><br><span class="line">com.android.settings.gemini.SimManagement        <span class="comment">#SIM卡设置</span></span><br><span class="line">com.android.settings.wifi.WifiSettings           <span class="comment">#wifi设置</span></span><br><span class="line">com.android.settings.bluetooth.BluetoothSettings <span class="comment">#蓝牙设置</span></span><br><span class="line">com.android.settings.DataUsageSummary            <span class="comment">#流量</span></span><br><span class="line">com.android.settings.WirelessSettings            <span class="comment">#更多（wireless）</span></span><br><span class="line">com.android.settings.audioprofile.AudioProfileSettings <span class="comment">#情景模式</span></span><br><span class="line">com.android.settings.DisplaySettings             <span class="comment">#显示</span></span><br><span class="line">com.android.settings.deviceinfo.Memory           <span class="comment">#存储</span></span><br><span class="line">com.android.settings.fuelgauge.PowerUsageSummary  <span class="comment">#电池</span></span><br><span class="line">com.android.settings.applications.ManageApplications <span class="comment">#应用程序</span></span><br><span class="line">com.android.settings.accounts.ManageAccountsSettings <span class="comment">#账号与同步</span></span><br><span class="line">com.android.settings.LocationSettings                <span class="comment">#位置</span></span><br><span class="line">com.android.settings.SecuritySettings                <span class="comment">#安全</span></span><br><span class="line">com.android.settings.inputmethod.InputMethodAndLanguageSettings	<span class="comment">#输入法与语言</span></span><br><span class="line">com.android.settings.DateTimeSettings              <span class="comment">#日期时间设置</span></span><br><span class="line">com.android.settings.schpwronoff.AlarmClock        <span class="comment">#定时开关机</span></span><br><span class="line">com.android.settings.DevelopmentSettings           <span class="comment">#开发人员选项</span></span><br><span class="line">com.android.settings.DeviceInfoSettings            <span class="comment">#关于手机</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>**2.**框架结构</p>
+<p>Settings处在安卓的应用层，不同于市场上的app，Settings属于系统app，也是一个比较特别的app。</p>
+<p>Settings特点：Settings页面很多，但是Activity却很少，基本上都是使用PreferenceFragment；Settings中包含大量对provider的操作与监听；Settings UI基本上都是采用Preference来实现。</p>
+<p>（1）Settings主界面Activity使用的是Settings；</p>
+<p>（2）Settings子界面Activity基本上都是使用SubSettings；</p>
+<p>（3）Settings与SubSettings中都是空Activity，这里的空Activity指的是没有重写7大生命周期方法；</p>
+<p>（4）Settings与SubSettings都是继承于SettingsActivity；</p>
+<p>（5）主界面使用的layout是：settings_main_dashboard，子界面使用的layout是：settings_main_pref；</p>
+<p>（6）主界面settings_main_dashboard中是使用DashboardSummary(Fragment)进行填充，子界面都是使用各自的Fragment进行填充；</p>
+<p>（7）子界面fragment基本上都是直接或间接继承SettingsPreferenceFragment；</p>
+<p>（8）主界面选项列表是定义在dashboard_categories.xml中，此文件是在SettingsActivity的buildDashboardCategories方法中进行解析的；</p>
+<p>（9）在Settings类中定义了很多staticclass，这些类都是继承SettingsActivity，但都是空的，如BluetoothSettingsActivity</p>
+<p> 这些类主要用于对外提供跳转页面，比如从SystemUI跳转至Settings中的某个界面;</p>
+<p>  (10) Settings类中定义了的staticclass被定义在AndroidManifest中，通过meta-data参数将对应的Fragment绑定在一起；</p>
+<p>（11）在Activity中填充Fragment主要使用的是SettingsActivity中的switchToFragment方法。</p>
+<p>**3.**UI结构</p>
+<p>为了能适应平板和手机，Settings采用了PreferenceActivity和PreferenceFragment结合的实现方式。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">常量字段	示意</span><br><span class="line">ACTION_SETTINGS	系统设置界面</span><br><span class="line">ACTION_APN_SETTINGS	APN设置界面</span><br><span class="line">ACTION_LOCATION_SOURCE_SETTINGS	定位设置界面</span><br><span class="line">ACTION_AIRPLANE_MODE_SETTINGS	更多连接方式设置界面</span><br><span class="line">ACTION_DATA_ROAMING_SETTINGS	双卡和移动网络设置界面</span><br><span class="line">ACTION_ACCESSIBILITY_SETTINGS	无障碍设置界面</span><br><span class="line">ACTION_SYNC_SETTINGS	同步设置界面</span><br><span class="line">ACTION_ADD_ACCOUNT	添加账户界面</span><br><span class="line">ACTION_NETWORK_OPERATOR_SETTINGS	选取运营商的界面</span><br><span class="line">ACTION_SECURITY_SETTINGS	安全设置界面</span><br><span class="line">ACTION_PRIVACY_SETTINGS	备份重置设置界面</span><br><span class="line">ACTION_VPN_SETTINGS	VPN设置界面,可能不存在</span><br><span class="line">ACTION_WIFI_SETTINGS	无线网设置界面</span><br><span class="line">ACTION_WIFI_IP_SETTINGS	WIFI的IP设置</span><br><span class="line">ACTION_BLUETOOTH_SETTINGS	蓝牙设置</span><br><span class="line">ACTION_CAST_SETTINGS	投射设置</span><br><span class="line">ACTION_DATE_SETTINGS	日期时间设置</span><br><span class="line">ACTION_SOUND_SETTINGS	声音设置</span><br><span class="line">ACTION_DISPLAY_SETTINGS	显示设置</span><br><span class="line">ACTION_LOCALE_SETTINGS	语言设置</span><br><span class="line">ACTION_VOICE_INPUT_SETTINGS	辅助应用和语音输入设置</span><br><span class="line">ACTION_INPUT_METHOD_SETTINGS	语言和输入法设置</span><br><span class="line">ACTION_USER_DICTIONARY_SETTINGS	个人字典设置界面</span><br><span class="line">ACTION_INTERNAL_STORAGE_SETTINGS	存储空间设置的界面</span><br><span class="line">ACTION_SEARCH_SETTINGS	搜索设置界面</span><br><span class="line">ACTION_APPLICATION_DEVELOPMENT_SETTINGS	开发者选项设置</span><br><span class="line">ACTION_DEVICE_INFO_SETTINGS	手机状态信息的界面</span><br><span class="line">ACTION_DREAM_SETTINGS	互动屏保设置的界面</span><br><span class="line">ACTION_NOTIFICATION_LISTENER_SETTINGS	通知使用权设置的界面</span><br><span class="line">ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS	勿扰权限设置的界面</span><br><span class="line">ACTION_CAPTIONING_SETTINGS	字幕设置的界面</span><br><span class="line">ACTION_PRINT_SETTINGS	打印设置界面</span><br><span class="line">ACTION_BATTERY_SAVER_SETTINGS	节电助手界面</span><br><span class="line">ACTION_HOME_SETTINGS	主屏幕设置界面</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+<p><img src="/img/Android%E5%BC%80%E5%8F%91-Settings/0.png"></p>
+<p>上图为Settings的主要界面。</p>
+<p>下图是Settings的主界面,图中通过不同颜色的矩形和类名简单的对主界面进行的划分，可以通过相同颜色的矩形和类型，将它们一一对应起来。从图中可以看到，红色框中的属于一个DashboardCategory，蓝色框中的属于DashboardTileView；在DashboardSummary中有多个DashboardCategory，DashboardCategory中包含一个title和多个DashboardTileView；DashboardTileView具有onClick方法，点击后启动子界面，使用的是Utils.startWithFragment进行跳转；startWithFragment方法中将子界面的Fragment传递给activity，这里会绑定对应的activity，也就是SubSettings。</p>
+<img src="/img/Android%E5%BC%80%E5%8F%91-Settings/1-1615622222113.jpg" style="zoom:67%;" />
+
+
+
+<p>**4.**代码分析</p>
+<p>由于Android知识暂无，此处暂空，后续再写。</p>
+<p>附上Settings里主要类图和时序图。</p>
+<img src="/img/Android%E5%BC%80%E5%8F%91-Settings/2.jpg" style="zoom:100%;" />
+
+
+
+<p><img src="/img/Android%E5%BC%80%E5%8F%91-Settings/3.jpg"></p>
+<img src="/img/Android%E5%BC%80%E5%8F%91-Settings/4.jpg" style="zoom:70%;" />
+
+<h3 id="二、Settings模块实例"><a href="#二、Settings模块实例" class="headerlink" title="二、Settings模块实例"></a>二、Settings模块实例</h3><p><strong>1.</strong>#71885/71886 【bug】【USB调试开关】49和50开启USB调试开关，多种语言下提示语显示为英语。</p>
+<p>（1）bug重现</p>
+<p>将手机连上电脑，利用adb命令可以快速的得知当前活动相关的源文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb shell dumpsys window | grep mCurrentFocus  <span class="comment">#调试当前手机状态使用哪个源文件</span></span><br></pre></td></tr></table></figure>
+<p>（2）问题分析</p>
+<p>方法一：在系统程序的根目录下（alps），用字符串查找指令grep/find，查找出含有“Set USB Debug mode successfully!”字符串的文件，发现java文件，查看源代码进行分析。</p>
+<p>相关文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">grep -rn “Set USB Debug mode successfully!” ×   <span class="comment">#搜索</span></span><br><span class="line">alps/packages/apps/Settings/src/com/android/settings/SetUsbStatusReceiver.java          </span><br></pre></td></tr></table></figure>
+<p>在SetUsbStatusReceiver.java中，定位到“Set USB Debug mode successfully!”，查看代码，根据分析Toast.makeText().show();方法实现的是一个提示对话框内容显示，实现了提示信息“Set USB Debug mode successfully!”，”Close USB Debug mode successfully!”的显示。</p>
+<p>由于该源代码中将提示信息已固定为英文字符串，因此多种语言下提示语显示为英语。</p>
+<img src="/img/Android%E5%BC%80%E5%8F%91-Settings/Settings1.png" style="zoom:75%;" />
+
+<p>（3）修改代码</p>
+<p>将Toast.makeText().show();里的固定字符串改为获取字符串资源的方式显示。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#前</span></span><br><span class="line">Toast.makeText(context, <span class="string">&quot;Set USB Debug mode successfully!&quot;</span>, Toast.LENGTH_LONG).show();</span><br><span class="line">Toast.makeText(context, <span class="string">&quot;Close USB Debug mode successfully!&quot;</span>, Toast.LENGTH_LONG).show();</span><br><span class="line"><span class="comment">#后</span></span><br><span class="line">Toast.makeText(context, context.getString(R.string.set_usb_debug_mode_on), Toast.LENGTH_LONG).show();</span><br><span class="line">Toast.makeText(context, context.getString(R.string.set_usb_debug_mode_off), Toast.LENGTH_LONG).show();</span><br><span class="line"><span class="comment">#在字符串资源文件中增加如下，每个国家字符串资源文件都应增加，并翻译成对应国家语言的字符串</span></span><br><span class="line"><span class="comment">#alps/packages/apps/Settings/res/values/strings.xml</span></span><br><span class="line">&lt;string name=<span class="string">&quot;set_usb_debug_mode_on&quot;</span>&gt;<span class="string">&quot;Set USB Debug mode successfully!&quot;</span>&lt;/string&gt;</span><br><span class="line">&lt;string name=<span class="string">&quot;set_usb_debug_mode_off&quot;</span>&gt;<span class="string">&quot;Close USB Debug mode successfully!&quot;</span>&lt;/string&gt;</span><br><span class="line"><span class="comment">#alps/packages/apps/Settings/res/values-am/strings.xml</span></span><br><span class="line">&lt;string name=<span class="string">&quot;set_usb_debug_mode_on&quot;</span>&gt;<span class="string">&quot;የዩኤስቢ ማረም ሁነታን በተሳካ ሁኔታ ያዘጋጁ!&quot;</span>&lt;/string&gt;</span><br><span class="line">&lt;string name=<span class="string">&quot;set_usb_debug_mode_off&quot;</span>&gt;<span class="string">&quot;የዩኤስቢ ማረም ሁነታን በተሳካ ሁኔታ ይዝጉ!&quot;</span>&lt;/string&gt;</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+<p>（4）编译、下载测试</p>
+<p>采用模块编译的方法，apk下载，测试发现显示为对应国家语言提示语。详细编译步骤见文末尾。</p>
+<p><strong>2.</strong>#72539 【bug】【界面显示】*#<em>#0#</em>#*恢复出厂设置未适配深色模式。</p>
+<p>（1）bug重现</p>
+<p>将手机连上电脑，利用adb命令可以快速的得知当前活动相关的源文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb shell dumpsys window | grep mCurrentFocus  <span class="comment">#调试当前手机状态使用哪个源文件</span></span><br></pre></td></tr></table></figure>
+<p>（2）问题分析</p>
+<p>方法一：根据adb定位，找到源文件。</p>
+<p>方法二：在系统程序的根目录下（alps），用字符串查找指令grep/find，查找出含有恢复出厂设置提示信息字符串的文件，发现res中的资源文件，根据资源文件中对应的 string name=”secret_reset_dialog_msg” ，搜索secret_reset_dialog_msg，找到对应的java文件，查看源代码进行分析。</p>
+<p>相关文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alps/packages/apps/Settings/src/com/android/settings/CustomizeScretCodeReceiver.java         </span><br></pre></td></tr></table></figure>
+<p>在CustomizeScretCodeReceiver.java中，定位到R.string.secret_reset_dialog_msg，查看代码，AlertDialog在当前的界面弹出一个对话框（置顶，屏蔽其他控件交互能力，用来提示非常重要的内容或警告信息），根据分析AlertDialog.Builder(context);builder.setTitle();)builder.setMessage();builder.setPositiveButton();builder.setNegativeButton();AlertDialog dialog = builder.create();dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);dialog.show();实现了提示信息。</p>
+<p>由于该源代码中未对深色模式进行适配，因此深色模式下提示对话框仍为白色。</p>
+<img src="/img/Android%E5%BC%80%E5%8F%91-Settings/Settings2.png" style="zoom:75%;" />
+
+<p>（3）修改代码</p>
+<p>方法一：增加对当前模式的判断，若为深色模式，则对话框显示为深色主题，若不为深色模式，则对话框显示为默认。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">import android.content.res.Configuration;   <span class="comment">#alt+enter 导入资源包</span></span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span>((context.getResources().getConfiguration().uiMode &amp; Configuration.UI_MODE_NIGHT_MASK)</span><br><span class="line">                == Configuration.UI_MODE_NIGHT_YES) &#123;</span><br><span class="line">            AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK); <span class="comment">#采用深色主题</span></span><br><span class="line">            builder.setTitle(context.getResources().getString(R.string.secret_reset_dialog_title));</span><br><span class="line">            builder.setMessage(context.getResources().getString(R.string.secret_reset_dialog_msg));</span><br><span class="line">            builder.setPositiveButton(<span class="string">&quot;ok&quot;</span>, new android.content.DialogInterface.<span class="function"><span class="title">OnClickListener</span></span>() &#123;</span><br><span class="line">                public void onClick(android.content.DialogInterface dialog, int <span class="built_in">which</span>) &#123;</span><br><span class="line">                    Intent resetIntent = new Intent(Intent.ACTION_FACTORY_RESET);</span><br><span class="line">                    resetIntent.setPackage(<span class="string">&quot;android&quot;</span>);</span><br><span class="line">                    resetIntent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);</span><br><span class="line">                    resetIntent.putExtra(Intent.EXTRA_REASON, <span class="string">&quot;MasterClearConfirm&quot;</span>);</span><br><span class="line">                    resetIntent.putExtra(Intent.EXTRA_WIPE_EXTERNAL_STORAGE, <span class="literal">false</span>);</span><br><span class="line">                    context.sendBroadcast(resetIntent);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">            builder.setNegativeButton(<span class="string">&quot;cancel&quot;</span>, null);</span><br><span class="line">            AlertDialog dialog = builder.create();</span><br><span class="line">            dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);</span><br><span class="line">            dialog.show();	</span><br><span class="line">        &#125;	</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            AlertDialog.Builder builder = new AlertDialog.Builder(context);  <span class="comment">#默认</span></span><br><span class="line">            ......其余与上相同</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<p>（4）编译、下载测试</p>
+<p>采用模块编译的方法，apk下载，测试发现显示已适配深色模式。</p>
+<p><strong>3.</strong>#72459 【bug】【设置】横屏进入用户体验计划/用户协议/隐私政策返回键偏大。</p>
+<p>（1）bug重现</p>
+<p>将手机连上电脑，利用adb命令可以快速的得知当前活动相关的源文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb shell dumpsys window | grep mCurrentFocus  <span class="comment">#调试当前手机状态使用哪个源文件</span></span><br></pre></td></tr></table></figure>
+<p>（2）问题分析</p>
+<p>利用adb命令发现用户体验计划源文件为传音提供的apk，无法修改。</p>
+<p>相关文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mCurrentFocus=Window&#123;f173913 u0 com.transsion.overlaysuw/com.transsion.overlaysuw.ExperienceDetailActivity&#125;  </span><br><span class="line">alps/packages/apps/SRApps/TranssionOOBE/OOBE.apk</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+<p>由于该源文件为传音提供的apk，需他方修改。</p>
+<p><strong>4.</strong>#72672 【bug】【设置】使用SIM卡未适配深色模式。</p>
+<p>（1）bug重现</p>
+<p>将手机连上电脑，利用adb命令可以快速的得知当前活动相关的源文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb shell dumpsys window | grep mCurrentFocus  <span class="comment">#调试当前手机状态使用哪个源文件</span></span><br></pre></td></tr></table></figure>
+<p>（2）问题分析</p>
+<p>方法一：根据adb定位，找到源文件。</p>
+<p>方法二：在系统程序的根目录下（alps），用字符串查找指令grep/find，查找出含有SIM卡提示信息字符串的文件，查看源代码进行分析。</p>
+<p>相关文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">alps/packages/apps/Settings/src/com/android/settings/widget/SwitchBar.java</span><br><span class="line">alps/packages/apps/Settings/res/values/themes.xml</span><br><span class="line">alps/packages/apps/Settings/res/values/colors.xml</span><br><span class="line">alps/packages/apps/Settings/res/values/attrs.xml</span><br></pre></td></tr></table></figure>
+<p>在SwitchBar.java中，根据分析mBackgroundColor = a.getColor(2, 0);mBackgroundActivatedColor = a.getColor(3, 0);实现了SwitchBar的颜色。</p>
+<p>由于该源代码中仅显示为2种颜色，因此深色模式时，激活状态仍未蓝色，关闭状态为灰色。</p>
+<img src="/img/Android%E5%BC%80%E5%8F%91-Settings/Settings3.png" style="zoom:75%;" />
+
+<p>（3）修改代码</p>
+<p>方法一：增加深色模式时选择条的颜色对应，增加对当前模式的判断，若为深色模式，则显示为该颜色，若不为深色模式，则显示为默认。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">//SwitchBar.java</span><br><span class="line">import android.content.res.Configuration;   <span class="comment">#alt+enter 导入资源包</span></span><br><span class="line">    private static final int[] XML_ATTRIBUTES = &#123;</span><br><span class="line">            R.attr.switchBarMarginStart,</span><br><span class="line">            R.attr.switchBarMarginEnd,</span><br><span class="line">            R.attr.switchBarBackgroundColor,</span><br><span class="line">            R.attr.switchBarBackgroundActivatedColor,</span><br><span class="line">            R.attr.switchBarRestrictionIcon,</span><br><span class="line">            R.attr.switchBarBackgroundActivatedDarkColor&#125;;   </span><br><span class="line">        mBackgroundColor = a.getColor(2, 0);</span><br><span class="line">        <span class="keyword">if</span>((context.getResources().getConfiguration().uiMode &amp; Configuration.UI_MODE_NIGHT_MASK)</span><br><span class="line">                == Configuration.UI_MODE_NIGHT_YES) &#123;</span><br><span class="line">            mBackgroundActivatedColor = a.getColor(5, 0);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            mBackgroundActivatedColor = a.getColor(3, 0);</span><br><span class="line">        &#125;</span><br><span class="line">//themes.xml</span><br><span class="line">&lt;item name=<span class="string">&quot;switchBarBackgroundActivatedDarkColor&quot;</span>&gt;@color/switchbar_background_dark_color&lt;/item&gt;  </span><br><span class="line">//colors.xml</span><br><span class="line">&lt;color name=<span class="string">&quot;switchbar_background_dark_color&quot;</span>&gt;<span class="comment">#778899&lt;/color&gt;</span></span><br><span class="line">//attrs.xml</span><br><span class="line">&lt;attr name=<span class="string">&quot;switchBarBackgroundActivatedDarkColor&quot;</span> format=<span class="string">&quot;color&quot;</span> /&gt;</span><br></pre></td></tr></table></figure>
+<p>（4）编译、下载测试</p>
+<p>采用整体编译的方法，刷机，测试发现显示已适配深色模式。</p>
+<p><strong>5.</strong>#73169 【bug】【设置】设置移动网络下的设置数据和使用（data  setting and ues）的use单词显示错误。</p>
+<p>（1）bug重现</p>
+<p>将手机连上电脑，利用adb命令可以快速的得知当前活动相关的源文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb shell dumpsys window | grep mCurrentFocus  <span class="comment">#调试当前手机状态使用哪个源文件</span></span><br></pre></td></tr></table></figure>
+<p>（2）问题分析</p>
+<p>发现仅英语en翻译错误，其他国家语言未翻译错误。</p>
+<p>相关文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">alps/packages/apps/Settings/res/values/strings.xml</span><br><span class="line">//&lt;string name=<span class="string">&quot;data_setting_and_use&quot;</span>&gt;<span class="string">&quot;Data setting and ues&quot;</span>&lt;/string&gt;</span><br></pre></td></tr></table></figure>
+<p>将ues改为using。</p>
+<p><strong>6.</strong>#72571 【bug】【设置】配合机和测试机同时安装Wifi direct APK，大字体下Wifi direct APK的文件名称显示不全。</p>
+<p>（1）bug重现</p>
+<p>将手机连上电脑，利用adb命令可以快速的得知当前活动相关的源文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb shell dumpsys window | grep mCurrentFocus  <span class="comment">#调试当前手机状态使用哪个源文件</span></span><br></pre></td></tr></table></figure>
+<p>（2）问题分析</p>
+<p>根据同事帮助得知，此问题为SuperBeam.apk版本问题，让测试人员使用新的SuperBeam.apk后大字体显示正常。</p>
+<p>相关文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SuperBeam.apk</span><br></pre></td></tr></table></figure>
+<p><strong>7.</strong>#72564 【bug】【设置】WIFI直连名称输入表情显示异常。</p>
+<p>（1）bug重现</p>
+<p>将手机连上电脑，利用adb命令可以快速的得知当前活动相关的源文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb shell dumpsys window | grep mCurrentFocus  <span class="comment">#调试当前手机状态使用哪个源文件</span></span><br></pre></td></tr></table></figure>
+<p>（2）问题分析</p>
+<p>根据以往相同问题处理情况和代码分析得知，此问题为输入字符限制问题。</p>
+<p>相关文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">alps/packages/apps/Settings/src/com/android/settings/wifi/p2p/WifiP2pSettings.java   </span><br><span class="line">alps/packages/apps/Settings/src/com/android/settings/wifi/WifiUtils.java</span><br></pre></td></tr></table></figure>
+<p>WifiP2pSettings.java，里设置了输入限制mDeviceNameText.setFilters(new InputFilter[] {new WifiUtils.WifiDeviceNameFilter()})；WifiUtils.java，里限制里限制了edittext输入SSID_ASCII_MAX_LENGTH = 32；字符与表情根据其编码方式，占用不同的字符数，当两者之和大于32，则表情出现显示不完整问题；#72564 【bug】 59009为相同问题，未更改。</p>
+<p><strong>8.</strong>#72570 【bug】【设置】WIFI直连配对，连接邀请界面未适配深色模式。</p>
+<p>（1）bug重现</p>
+<p>将手机连上电脑，利用adb命令可以快速的得知当前活动相关的源文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb shell dumpsys window | grep mCurrentFocus  <span class="comment">#调试当前手机状态使用哪个源文件</span></span><br></pre></td></tr></table></figure>
+<p>（2）问题分析</p>
+<p>方法一：根据adb定位，找到源文件。</p>
+<p>方法二：在系统程序的根目录下（alps），用字符串查找指令grep/find，查找出含有SIM卡提示信息字符串的文件，查看源代码进行分析。</p>
+<p>相关文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alps/frameworks/opt/net/wifi/service/java/com/android/server/wifi/p2p/WifiP2pServiceImpl.java</span><br></pre></td></tr></table></figure>
+<p>在WifiP2pServiceImpl.java中，根据分析未对邀请界面进行深色适配。</p>
+<img src="/img/Android%E5%BC%80%E5%8F%91-Settings/Settings4.png" style="zoom:75%;" />
+
+<p>（3）修改代码</p>
+<p>方法一：增加深色模式时选择条的颜色对应，增加对当前模式的判断，若为深色模式，则显示为该颜色，若不为深色模式，则显示为默认。</p>
+<p>（4）编译、下载测试</p>
+<p>采用整体编译的方法，刷机，测试发现显示已适配深色模式。</p>
+<p>**X.**编译、下载步骤</p>
+<p>需注意Settings模块可能与系统相关，有时无法采用adb install 的方法下载入手机，或下载后无法使用，需要将下载的install 卸载（install与push冲突），采用push的方式下载，若还是不行则采用整编下载。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#install</span></span><br><span class="line">adb install ./target/product/sp7731e_1h10/system_ext/priv-app/Settings/Settings.apk  </span><br><span class="line"><span class="comment">#push</span></span><br><span class="line">adb root</span><br><span class="line">adb remount</span><br><span class="line">adb push ./target/product/sp7731e_1h10/system_ext/priv-app/Settings/Settings.apk /system_ext/priv-app/Settings/Settings.apk</span><br></pre></td></tr></table></figure>
+<h3 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h3><p>不知道说啥，奥里给！……</p>
+<p><strong>觉得有帮助的朋友，不妨点个赞再走呗！ ╰(￣▽￣)╭ ~</strong></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/yelings.github.io/tags/Android/" rel="tag"># Android</a>
+          </div>
+
+        <script
+  async
+  src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"
+></script>
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/yelings.github.io/2021/03/08/Android%E5%BC%80%E5%8F%91-Dialer/" rel="prev" title="Android开发-Dialer">
+      <i class="fa fa-chevron-left"></i> Android开发-Dialer
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/yelings.github.io/2021/03/13/Android%E5%BC%80%E5%8F%91-Factorytest/" rel="next" title="Android开发-Factorytest">
+      Android开发-Factorytest <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="lv-container" data-id="city" data-uid="MTAyMC81MjQ5NC8yODk3Mg=="></div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Settings%E6%A8%A1%E5%9D%97"><span class="nav-number">1.</span> <span class="nav-text">Settings模块</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81Settings%E6%A8%A1%E5%9D%97%E5%8E%9F%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">一、Settings模块原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Settings%E6%A8%A1%E5%9D%97%E5%AE%9E%E4%BE%8B"><span class="nav-number">1.2.</span> <span class="nav-text">二、Settings模块实例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E8%AF%AD"><span class="nav-number">1.3.</span> <span class="nav-text">结语</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Ye Ling"
+      src="/yelings.github.io/images/touxiang.jpg">
+  <p class="site-author-name" itemprop="name">Ye Ling</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/yelings.github.io/archives/">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/yelings.github.io/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/yelings.github.io/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ye Ling</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/yelings.github.io/lib/anime.min.js"></script>
+  <script src="/yelings.github.io/lib/velocity/velocity.min.js"></script>
+  <script src="/yelings.github.io/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/yelings.github.io/js/utils.js"></script>
+
+<script src="/yelings.github.io/js/motion.js"></script>
+
+
+<script src="/yelings.github.io/js/schemes/pisces.js"></script>
+
+
+<script src="/yelings.github.io/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/yelings.github.io/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+NexT.utils.loadComments(document.querySelector('#lv-container'), () => {
+  window.livereOptions = {
+    refer: location.pathname.replace(CONFIG.root, '').replace('index.html', '')
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+});
+</script>
+
+</body>
+</html>

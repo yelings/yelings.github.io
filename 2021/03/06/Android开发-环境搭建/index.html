@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/yelings.github.io/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/yelings.github.io/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/yelings.github.io/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/yelings.github.io/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/yelings.github.io/css/main.css">
+
+
+<link rel="stylesheet" href="/yelings.github.io/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yelings.github.io","root":"/yelings.github.io/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="通过本节实现Android开发的环境搭建，主要内容包括： （1）Linux系统安装。 （2）开发工具安装。 （3）刷机。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android开发-环境搭建">
+<meta property="og:url" content="http://yelings.github.io/2021/03/06/Android%E5%BC%80%E5%8F%91-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/index.html">
+<meta property="og:site_name" content="Ye Ling&#39;s blog">
+<meta property="og:description" content="通过本节实现Android开发的环境搭建，主要内容包括： （1）Linux系统安装。 （2）开发工具安装。 （3）刷机。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-03-05T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-04-02T04:37:48.212Z">
+<meta property="article:author" content="Ye Ling">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yelings.github.io/2021/03/06/Android%E5%BC%80%E5%8F%91-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Android开发-环境搭建 | Ye Ling's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/yelings.github.io/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Ye Ling's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/yelings.github.io/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/yelings.github.io/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/yelings.github.io/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/yelings.github.io/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/yelings.github.io/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yelings.github.io/2021/03/06/Android%E5%BC%80%E5%8F%91-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/yelings.github.io/images/touxiang.jpg">
+      <meta itemprop="name" content="Ye Ling">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ye Ling's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Android开发-环境搭建
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-06 00:00:00" itemprop="dateCreated datePublished" datetime="2021-03-06T00:00:00+08:00">2021-03-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-04-02 12:37:48" itemprop="dateModified" datetime="2021-04-02T12:37:48+08:00">2021-04-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/yelings.github.io/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>通过本节实现Android开发的环境搭建，主要内容包括：</p>
+<p>（1）Linux系统安装。</p>
+<p>（2）开发工具安装。</p>
+<p>（3）刷机。</p>
+<a id="more"></a>2003年10月，Andy Rubin等人创建Android公司，并组建Android团队。
+
+<p>2005年8月17日，Google低调收购了成立仅22个月的高科技企业Android及其团队。安迪鲁宾成为Google公司工程部副总裁，继续负责Android项目。</p>
+<p>2007年11月5日，谷歌公司正式向外界展示了这款名为Android的操作系统，并且在这天谷歌宣布建立一个全球性的联盟组织，该组织由34家手机制造商、软件开发商、电信运营商以及芯片制造商共同组成，并与84家硬件制造商、软件开发商及电信营运商组成开放手持设备联盟（Open Handset Alliance）来共同研发改良Android系统，这一联盟将支持谷歌发布的手机操作系统以及应用软件，Google以Apache免费开源许可证的授权方式，发布了Android的源代码。</p>
+<p>本文主要参考文档： 1-工作环境搭建指南；2-软件编译命令；ubuntu16.04开发环境搭建；AOSP（一）Ubuntu20.10编译AOSP。</p>
+<h2 id="搭建步骤"><a href="#搭建步骤" class="headerlink" title="搭建步骤"></a>搭建步骤</h2><h3 id="一、安装Ubuntu系统"><a href="#一、安装Ubuntu系统" class="headerlink" title="一、安装Ubuntu系统"></a>一、安装Ubuntu系统</h3><p>为什么要在Linux搭建开发环境呢？从直观来说，Android虚拟机在Linux下运行速度更快，而且性能更稳定。</p>
+<p>我安装的Linux环境是kubuntu-20.04.20-desktop-amd64.iso。</p>
+<p>Google 会定期在 Ubuntu LTS (14.04) 和 Debian 测试版本中对 Android 编译系统进行内部测试。我们只要使用Ubuntu 14.04 以后的系统即可。</p>
+<p>采用U盘启动安装kubuntu系统：</p>
+<p>（1）制作启动盘：Windows可以使用UltraISO或者Rufus，Linux可以使用DD命令，另外还推荐开源多平台的启动盘制作工具:<a target="_blank" rel="noopener" href="http://wiki.rosalab.ru/en/index.php/ROSA_ImageWriter">ROSA</a>。</p>
+<p>（2）启动盘制作完成之后，开机按F12选择从U盘启动进入系统安装界面就可以开始安装了。</p>
+<p>（3）推荐在安装时自定义分区方案，将/home分区从/分区中独立出来，这样如果系统出现问题需要重装，就不会影响日常数据。以下是基于1TB 硬盘的分区方案。</p>
+<table>
+<thead>
+<tr>
+<th>分区</th>
+<th>容量</th>
+<th>格式</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>/</td>
+<td>30G</td>
+<td>ext4</td>
+<td>根分区（安装系统和软件)</td>
+</tr>
+<tr>
+<td>swap</td>
+<td>16G</td>
+<td>swap</td>
+<td>缓存分区（物理内存用尽后会使用此分区当做虚拟内存使用，建议挂载到固态硬盘)</td>
+</tr>
+<tr>
+<td>/opt</td>
+<td>15G</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>/efi</td>
+<td>512MB</td>
+<td>fat32</td>
+<td>efi引导分区 （如果BIOS设置的UEFI引导，则必须设置efi分区）</td>
+</tr>
+<tr>
+<td>/home</td>
+<td>剩余空间</td>
+<td>ext4</td>
+<td>用户目录（存储日常用户数据，也是我们常常操作的分区）</td>
+</tr>
+</tbody></table>
+<p>由于此步骤为我师傅帮助操作重装kubuntu系统，所以略过此步骤。</p>
+<p>kubuntu安装后还需要做一些配置才能愉快的使用，包括添加软件源（更换为国内的软件源）、安装中文输入法、git等等。</p>
+<p>**1.**添加软件源</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo cp /etc/apt/sources.list /etc/apt/sources.list.backup <span class="comment">#备份kubuntu默认的源地址</span></span><br><span class="line">kate /etc/apt/sources.list  <span class="comment">#Ubuntu中的sudo gedit指令在kubuntu中为kate </span></span><br></pre></td></tr></table></figure>
+<p>kate后打开配置文件，在文件开头添加下面的阿里云的软件源。我未进行更改软件源。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">deb http://mirrors.aliyun.com/ubuntu/ quantal main restricted universe multiverse</span><br><span class="line">deb http://mirrors.aliyun.com/ubuntu/ quantal-security main restricted universe multiverse</span><br><span class="line">deb http://mirrors.aliyun.com/ubuntu/ quantal-updates main restricted universe multiverse</span><br><span class="line">deb http://mirrors.aliyun.com/ubuntu/ quantal-proposed main restricted universe multiverse</span><br><span class="line">deb http://mirrors.aliyun.com/ubuntu/ quantal-backports main restricted universe multiverse</span><br><span class="line">deb-src http://mirrors.aliyun.com/ubuntu/ quantal main restricted universe multiverse</span><br><span class="line">deb-src http://mirrors.aliyun.com/ubuntu/ quantal-security main restricted universe multiverse</span><br><span class="line">deb-src http://mirrors.aliyun.com/ubuntu/ quantal-updates main restricted universe multiverse</span><br><span class="line">deb-src http://mirrors.aliyun.com/ubuntu/ quantal-proposed main restricted universe multiverse</span><br><span class="line">deb-src http://mirrors.aliyun.com/ubuntu/ quantal-backports main restricted universe multiverse</span><br></pre></td></tr></table></figure>
+<p>update更新软件列表，upgrade更新软件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get upgrade</span><br></pre></td></tr></table></figure>
+<p>**2.**安装中文输入法IBus拼音</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install ibus-pinyin</span><br><span class="line">ibus-setup</span><br></pre></td></tr></table></figure>
+<p>输入法的配置界面就会弹出，IBus Preference设置被打开。我们在Input Method选项卡中，选择自己喜欢的输入方式，并配置自己喜欢的快捷键即可，通常情况下，IBus图标（一个小键盘）会出现在桌面右上角的任务栏中。有时候这个图标会自行消失，可使用命令ibus-daemon -drx，找回消失的IBus图标。</p>
+<p>**3.**安装git</p>
+<p>git是程序员必备软件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install git</span><br><span class="line">git config --global user.name yeling   <span class="comment">#设置git用户名</span></span><br><span class="line">git config --global user.email yeling@xxx.com.cn  <span class="comment">#设置git邮箱</span></span><br><span class="line">ssh-keygen -t rsa <span class="comment">#生成密钥用于git验证，生成出的文件放到 ~/.ssh目录下</span></span><br><span class="line"><span class="comment">#如果过去有密钥，重装电脑之前记得备份一下~/.ssh。新系统安装完成后不用生成密钥，直接把原有的~/.ssh的内容复制到~/.ssh就可以了</span></span><br></pre></td></tr></table></figure>
+<p>**4.**安装配置ccache</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install ccache</span><br><span class="line">ccache -M 100G <span class="comment">#配置ccache大小</span></span><br><span class="line">ccache -S <span class="comment">#检查容量是否配置成功</span></span><br></pre></td></tr></table></figure>
+<p>**5.**bashrc的易用性配置</p>
+<p>.bashrc这个文件主要保存个人的一些个性化设置，如命令别名、路径等。也即在同一个服务器上，只对某个用户的个性化设置相关。~/bashrc:为每一个运行bash shell的用户执行此文件.当bash shell被打开时,该文件被读取。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kate ~/.bashrc <span class="comment">#打开.bashrc</span></span><br><span class="line"><span class="built_in">source</span> ~/.bashrc <span class="comment">#修改完，保存关闭后，需执行此命令，立即生效.bashrc</span></span><br></pre></td></tr></table></figure>
+<p>有一些常用的bashrc配置可以提供我们的工作效率，以下功能，按需将对应的代码添加到~/.bashrc末尾，编辑完记得保存。</p>
+<p>（1）客制化终端命令提示符(显示git分支，自定义颜色显示方式等)</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">bash style 常用的客制化style 末尾添加</span></span><br><span class="line">export PS1=&#x27;\[\033[1;32m\]\u@\h \[\033[1;34m\]\w\[\033[1;36m\]$(__git_ps1)\[\033[1;37m\]\n$\[\033[0m\] &#x27;</span><br><span class="line"><span class="meta">#</span><span class="bash">按如上配置，显示的效果如下：</span></span><br><span class="line">link@NEON ~/project/complieCode/q/alps (dev_tecno_RC6)</span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo apt update</span></span><br></pre></td></tr></table></figure>
+<p>（2）添加历史命令补全(终端的上下键翻阅历史命令时可以按起始字符串智能匹配)</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">bash <span class="built_in">history</span></span></span><br><span class="line">if [[ $- =~ i ]]; then</span><br><span class="line">    bind &#x27;&quot;\e[A&quot;: history-search-backward&#x27;</span><br><span class="line">    bind &#x27;&quot;\e[B&quot;: history-search-forward&#x27;</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+<p>（3）添加编译”mk”命令的项目名称补全</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">mk mk completion</span></span><br><span class="line">function _mk_completion() &#123;</span><br><span class="line">    local cur prev opts</span><br><span class="line">    COMPREPLY=()</span><br><span class="line">    cur=&quot;$&#123;COMP_WORDS[COMP_CWORD]&#125;&quot;</span><br><span class="line">    prev=&quot;$&#123;COMP_WORDS[COMP_CWORD-1]&#125;&quot;</span><br><span class="line"></span><br><span class="line">    if [ -d &quot;$(pwd)/../sagereal/mk/&quot; ] &amp;&amp; [ &quot;$prev&quot; != &quot;mm&quot; ];then</span><br><span class="line">        opts=`ls $(pwd)/../sagereal/mk/` </span><br><span class="line">        COMPREPLY=( $(compgen -W &quot;$&#123;opts&#125;&quot; -- $&#123;cur&#125;) )</span><br><span class="line">        return 0</span><br><span class="line">    else</span><br><span class="line">        return 1</span><br><span class="line">    fi</span><br><span class="line">&#125;</span><br><span class="line">complete -o nospace -F _mk_completion -o dirnames ./mk</span><br><span class="line">complete -o nospace -F _mk_completion -o dirnames ./mp</span><br></pre></td></tr></table></figure>
+<p>  （4）配置ccache</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加如下内容配置ccache</span></span><br><span class="line"><span class="comment">#ccache</span></span><br><span class="line"><span class="built_in">export</span> CCACHE_EXEC=/usr/bin/ccache <span class="comment"># ccache的执行文件，一般都是这个路径</span></span><br><span class="line"><span class="built_in">export</span> USE_CCACHE=<span class="literal">true</span> <span class="comment">#开启ccache</span></span><br><span class="line"><span class="built_in">export</span> CCACHE_SLOPPINESS=include_file_mtime,time_macros <span class="comment"># ccache缓存类型</span></span><br><span class="line"><span class="built_in">export</span> CCACHE_DIR=/home/yeling/project/CcacheData <span class="comment"># ccache 缓存存放路径，建议放在固态硬盘中(需提前建立此目录)</span></span><br><span class="line"><span class="built_in">export</span> CACHE_UMASK=002</span><br><span class="line"><span class="built_in">unset</span>  CCACHE_HARDLINK</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="二、安装开发工具"><a href="#二、安装开发工具" class="headerlink" title="二、安装开发工具"></a>二、安装开发工具</h3><p>很多 Android 开发者都会希望编译 Android 源码并刷进自己的手机里面，但网上教程很多都仅仅是告诉你 lunch、make 等等，但你手里有一台设备时却发现，你编译出的镜像由于驱动关系是不能直接烧进手机的。这里整理了一下，帮助大家可以更好的搭建编译环境。</p>
+<p>**1.**AOSP编译环境搭建</p>
+<p>（1）基于AOSP官方推荐使用Ubuntu 14.04+的版本，官方要求安装如下库：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install git-core gnupg flex bison gperf build-essential zip curl zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z-dev libgl1-mesa-dev libxml2-utils xsltproc unzip</span><br></pre></td></tr></table></figure>
+<p>我安装的库为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install git-core bison g++-multilib git gperf libxml2-utils make zlib1g-dev zip build-essential curl gnupg flex gcc-multilib libc6-dev-i386 lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip libnss-sss libssl-dev git openjdk-8-jdk libusb-dev python-crypto fontconfig</span><br><span class="line">//以下为补充</span><br><span class="line"><span class="comment">#1安装python</span></span><br><span class="line">sudo apt-get install python <span class="comment">#之前没安装编译不了，显示没有命令</span></span><br><span class="line"><span class="comment">#2安装libncurses5 libncurses6</span></span><br><span class="line">sudo apt install libncurses5 libncurses6 <span class="comment">#编译时报libncurses.so.5不能找到</span></span><br><span class="line"><span class="comment">#3安装LLVM、libswitch-perl</span></span><br><span class="line">sudo apt install llvm-6.0</span><br><span class="line">sudo apt install clang-6.0</span><br><span class="line">sudo apt install libswitch-perl</span><br><span class="line"><span class="built_in">export</span> LC_ALL=C    <span class="comment">#去除本地化设置</span></span><br><span class="line"><span class="comment">#4安装Source Insight，神器,可以很方便的搜索，查找源码中的内容</span></span><br></pre></td></tr></table></figure>
+<p>（/1）如果需要编译M平台以下还需要安装以下软件包（仅支持Ubuntu 14.04）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo add-apt-repository ppa:openjdk-r/ppa</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install openjdk-7-jdk flex mingw32 tofrodos libswitch-perl</span><br></pre></td></tr></table></figure>
+<p>（2）安装JDK</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install openjdk-8-jdk <span class="comment">#要编译android源码就必须使用OpenJDK，OpenJDK是OracleJDK的开源精简版</span></span><br><span class="line"><span class="comment">#配置JDK环境变量，由于系统已有，路径能找到，此时可不配置</span></span><br><span class="line">kate ~/.bashrc</span><br><span class="line"><span class="comment">#文件末尾添加如下内容</span></span><br><span class="line"><span class="comment">#set java environment</span></span><br><span class="line"><span class="built_in">export</span> JAVA_HOME=/usr/bin　<span class="comment">#自己JDK存放路径</span></span><br><span class="line"><span class="built_in">export</span> CLASS_PATH=.:<span class="variable">$JAVA_HOME</span>/lib:<span class="variable">$JAVA_HOME</span>/jre/lib</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$JAVA_HOME</span>/bin</span><br></pre></td></tr></table></figure>
+<p>（3）安装Android Studio/SDK</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#首先要下载AS的Linux版安装包</span></span><br><span class="line"><span class="comment">#方式一，下载下来解压，然后自动安装SDK即可，前提是有JDK</span></span><br><span class="line"><span class="comment">#方式二，输入以下命令</span></span><br><span class="line">unzip android-studio-ide-143.2821654-linux.zip <span class="comment">#解压</span></span><br><span class="line"><span class="built_in">cd</span> ./android-studio/bin</span><br><span class="line">sh studio.h</span><br><span class="line"><span class="comment">#配置Android SDK tool环境变量</span></span><br><span class="line">kate ~/.bashrc</span><br><span class="line"><span class="comment">#文件末尾添加如下内容</span></span><br><span class="line"><span class="comment"># Android Monitor</span></span><br><span class="line"><span class="built_in">export</span> ANDROID_MONITOR=/home/yeling/Android/Sdk/tools/   <span class="comment">#SDK存放路径</span></span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$ANDROID_MONITOR</span>:<span class="variable">$PATH</span></span><br><span class="line"><span class="comment"># platform-tools</span></span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:/home/yeling/Android/Sdk/platform-tools/  <span class="comment">#SDK存放路径</span></span><br><span class="line"><span class="comment"># build-tools</span></span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:/home/yeling/Android/Sdk/platform-tools/29.0.3  <span class="comment">#SDK存放路径</span></span><br><span class="line"><span class="comment"># 其他日常工具想在任意终端启用，也可以按此种方式添加到环境变量</span></span><br><span class="line"><span class="built_in">source</span>  ~/.bashrc <span class="comment">#更新下~/.bashrc</span></span><br></pre></td></tr></table></figure>
+<p>（4）安装DLoader</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#解压后的文件夹，给DLoader加可执行权限，在sprd_dloader内打开bash，输入命令</span></span><br><span class="line">chmod +x DLoader</span><br><span class="line">./DLoader  <span class="comment">#确认DLoader可用</span></span><br><span class="line"><span class="comment">#配置DLoader环境变量</span></span><br><span class="line"><span class="built_in">export</span> DLPADER=/home/yeling/project/tools/DLoader R1.19.1901   <span class="comment">#SDK存放路径</span></span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$ANDROID_MONITOR</span>:<span class="variable">$PATH</span></span><br><span class="line"><span class="built_in">source</span>  ~/.bashrc <span class="comment">#更新下~/.bashrc</span></span><br></pre></td></tr></table></figure>
+<p>检查以上软件是否安装成功。</p>
+<h3 id="三、刷机"><a href="#三、刷机" class="headerlink" title="三、刷机"></a>三、刷机</h3><p>**1.**编译整个系统代码</p>
+<p>AOSP编译：<br>（1）原生编译方法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#1整体编译：(在项目的alps文件夹里打开bash，执行命令)</span></span><br><span class="line"><span class="built_in">source</span> build/envsetup.sh</span><br><span class="line">lunch</span><br><span class="line">X          ------&gt; （编译模拟器版本，也可以按需自行选择）</span><br><span class="line">make -jX 2&gt;&amp;1 | tee build.log (如果是N核处理器，X则不大于2N)</span><br><span class="line"><span class="comment">#make -j24 2&gt;&amp;1 | tee build.log                  </span></span><br><span class="line"><span class="comment">#     或者make -j24 -k 2&gt;&amp;1 | tee build.log             </span></span><br><span class="line"><span class="comment">#          注：-j24取决于CPU的核数 查看cpu核数：cat  /proc/cpuinfo | grep processor | wc -l   </span></span><br><span class="line"><span class="comment">#             2&gt;&amp;1 表示将标准错误重定向到标准输出   </span></span><br><span class="line"><span class="comment">#             tee 表示同时将log输出到控制台和文件 </span></span><br><span class="line"><span class="comment">#             &quot;-k&quot;: keep going when encounter error</span></span><br><span class="line"><span class="comment">#remake的方法：依旧执行make -j24 -k 2&gt;&amp;1 | tee rebuild.log</span></span><br><span class="line"><span class="comment">#重新new需要先执行clean方法 再进行new操作</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#2android模块编译：</span></span><br><span class="line">Build android module</span><br><span class="line">mmm &lt;directory&gt;</span><br><span class="line"><span class="comment">#example: mmm frameworks</span></span><br><span class="line">Rebuild android module</span><br><span class="line">mmm -B &lt;directory&gt;</span><br><span class="line"><span class="comment">#example: mmm -B frameworks/base</span></span><br><span class="line">Build android module by name</span><br><span class="line">make -j24 &lt;module name&gt;</span><br><span class="line"><span class="comment">#example: make -j24 libjpeg</span></span><br><span class="line"><span class="comment">#建议先使用：mmm -B，若无文件改变，再使用mmma，再次编译即可使用mmm -B      *************(建议在进行模块编译的时间加入 | tee mmbuild.log,收集模块编译时的log，编译完成后在log中查找“Install”即可查看编译生成的文件，(可直接将生成的APK文件夹push到/system/app/（/system/priv-app）对应的APK文件夹中))</span></span><br><span class="line"><span class="comment">#eg：mmm -B framework/base/  | tee mmbuild.log     </span></span><br><span class="line"><span class="comment">#在mmbuild.log中查找“Install”关键字可看到如下生成的文件</span></span><br><span class="line"><span class="comment">#Install：out/target/product/sagetel6582_wt_l/system/framework/ext.jar&#x27;</span></span><br><span class="line"><span class="comment">#Install: out/target/product/sagetel6582_wt_l/system/framework/framework.jar</span></span><br></pre></td></tr></table></figure>
+<p>（2）sagereal编译方法:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#1整体编译：(在项目的alps文件夹里打开bash，执行命令)</span></span><br><span class="line">./mk -ud SP592XXXX n n <span class="comment">#&#123;project&#125;=项目文件名ProjectConfig.mk里可找到,ud=userbug版本/软件，n=new </span></span><br><span class="line"><span class="comment">#等待编译完成 </span></span><br><span class="line"></span><br><span class="line"><span class="comment">#2android模块编译：(在项目的alps文件夹里打开bash，执行命令)</span></span><br><span class="line">./mk -ud SP592XXXX mm packages/apps/Dialer/</span><br><span class="line"><span class="comment">#等待编译完成 </span></span><br></pre></td></tr></table></figure>
+<p>我采用的是sagereal编译方法。</p>
+<p>**2.**下载至手机</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#1整个系统下载：(在编译后生成的项目文件名文件夹里（SP592XXXX）打开bash，执行命令)</span></span><br><span class="line">DLoader -pac BC2c-XXXXX.pac -reset  <span class="comment">#SP592XXXX里的.pac文件,设置刷机后重启</span></span><br><span class="line"><span class="comment">#DLoader -pac BC2c-XXXXX.pac -reset -nvbk false -filebk false #设置清除原系统备份数据，版本不同原因</span></span><br><span class="line"><span class="comment">#等待显示usb检测，将手机关机，按住声音下键，连接usb线至电脑，观察下载进度条，若无法刷机，需尝试三个键一起按</span></span><br><span class="line"><span class="comment">#下载成功显示download success，观察手机</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#2android模块下载：(在alps/out文件夹里打开bash，执行命令)</span></span><br><span class="line">adb devices  <span class="comment">#需要检查能否连接上手机，不能则需手机调至开发者选项，USB调试模式</span></span><br><span class="line">adb root    <span class="comment">#若之前手机里已安装里user版本的系统，则需要检查能否下载，不能则需刷机</span></span><br><span class="line">adb install ./target/product/sp7731e_1h10/product/priv-app/Dialer.apk  <span class="comment">#找到Dialer.apk下载</span></span><br><span class="line"><span class="comment">#下载成功显示 success，观察手机  android 10手机不需关机直接插usb线下载</span></span><br></pre></td></tr></table></figure>
+<h3 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h3><p>这是叶大灵的Android开发第一步，也是踏入互联网行业的第一步……</p>
+<p><strong>觉得有帮助的朋友，不妨点个赞再走呗！ ╰(￣▽￣)╭ ~</strong></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/yelings.github.io/tags/Android/" rel="tag"># Android</a>
+          </div>
+
+        <script
+  async
+  src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"
+></script>
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/yelings.github.io/2021/01/19/Hexo+Github%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="prev" title="Hexo+Github 博客搭建">
+      <i class="fa fa-chevron-left"></i> Hexo+Github 博客搭建
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/yelings.github.io/2021/03/08/Android%E5%BC%80%E5%8F%91-Dialer/" rel="next" title="Android开发-Dialer">
+      Android开发-Dialer <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="lv-container" data-id="city" data-uid="MTAyMC81MjQ5NC8yODk3Mg=="></div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%90%AD%E5%BB%BA%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.</span> <span class="nav-text">搭建步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%AE%89%E8%A3%85Ubuntu%E7%B3%BB%E7%BB%9F"><span class="nav-number">1.1.</span> <span class="nav-text">一、安装Ubuntu系统</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%AE%89%E8%A3%85%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7"><span class="nav-number">1.2.</span> <span class="nav-text">二、安装开发工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%88%B7%E6%9C%BA"><span class="nav-number">1.3.</span> <span class="nav-text">三、刷机</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E8%AF%AD"><span class="nav-number">1.4.</span> <span class="nav-text">结语</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Ye Ling"
+      src="/yelings.github.io/images/touxiang.jpg">
+  <p class="site-author-name" itemprop="name">Ye Ling</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/yelings.github.io/archives/">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/yelings.github.io/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/yelings.github.io/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ye Ling</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/yelings.github.io/lib/anime.min.js"></script>
+  <script src="/yelings.github.io/lib/velocity/velocity.min.js"></script>
+  <script src="/yelings.github.io/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/yelings.github.io/js/utils.js"></script>
+
+<script src="/yelings.github.io/js/motion.js"></script>
+
+
+<script src="/yelings.github.io/js/schemes/pisces.js"></script>
+
+
+<script src="/yelings.github.io/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/yelings.github.io/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+NexT.utils.loadComments(document.querySelector('#lv-container'), () => {
+  window.livereOptions = {
+    refer: location.pathname.replace(CONFIG.root, '').replace('index.html', '')
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+});
+</script>
+
+</body>
+</html>

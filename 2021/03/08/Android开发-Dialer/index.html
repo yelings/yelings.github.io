@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/yelings.github.io/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/yelings.github.io/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/yelings.github.io/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/yelings.github.io/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/yelings.github.io/css/main.css">
+
+
+<link rel="stylesheet" href="/yelings.github.io/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yelings.github.io","root":"/yelings.github.io/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="通过本节实现对Android的Dialer模块进行了解，主要内容包括： （1）Dialer模块原理。 （2）Dialer模块实例。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android开发-Dialer">
+<meta property="og:url" content="http://yelings.github.io/2021/03/08/Android%E5%BC%80%E5%8F%91-Dialer/index.html">
+<meta property="og:site_name" content="Ye Ling&#39;s blog">
+<meta property="og:description" content="通过本节实现对Android的Dialer模块进行了解，主要内容包括： （1）Dialer模块原理。 （2）Dialer模块实例。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yelings.github.io/img/Android%E5%BC%80%E5%8F%91-Dialer/01.jpg">
+<meta property="og:image" content="http://yelings.github.io/img/Android%E5%BC%80%E5%8F%91-Dialer/02.jpg">
+<meta property="og:image" content="http://yelings.github.io/img/Android%E5%BC%80%E5%8F%91-Dialer/03.jpg">
+<meta property="og:image" content="http://yelings.github.io/img/Android%E5%BC%80%E5%8F%91-Dialer/04.png">
+<meta property="og:image" content="http://yelings.github.io/img/Android%E5%BC%80%E5%8F%91-Dialer/05.jpg">
+<meta property="og:image" content="http://yelings.github.io/img/Android%E5%BC%80%E5%8F%91-Dialer/06.jpg">
+<meta property="og:image" content="http://yelings.github.io/img/Android%E5%BC%80%E5%8F%91-Dialer/08.jpg">
+<meta property="article:published_time" content="2021-03-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-04-02T04:45:12.180Z">
+<meta property="article:author" content="Ye Ling">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yelings.github.io/img/Android%E5%BC%80%E5%8F%91-Dialer/01.jpg">
+
+<link rel="canonical" href="http://yelings.github.io/2021/03/08/Android%E5%BC%80%E5%8F%91-Dialer/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Android开发-Dialer | Ye Ling's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/yelings.github.io/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Ye Ling's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/yelings.github.io/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/yelings.github.io/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/yelings.github.io/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/yelings.github.io/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/yelings.github.io/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yelings.github.io/2021/03/08/Android%E5%BC%80%E5%8F%91-Dialer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/yelings.github.io/images/touxiang.jpg">
+      <meta itemprop="name" content="Ye Ling">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ye Ling's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Android开发-Dialer
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-08 00:00:00" itemprop="dateCreated datePublished" datetime="2021-03-08T00:00:00+08:00">2021-03-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-04-02 12:45:12" itemprop="dateModified" datetime="2021-04-02T12:45:12+08:00">2021-04-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/yelings.github.io/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>通过本节实现对Android的Dialer模块进行了解，主要内容包括：</p>
+<p>（1）Dialer模块原理。</p>
+<p>（2）Dialer模块实例。</p>
+<a id="more"></a>
+
+<p>本文主要参考文档：</p>
+<p>[Android原生应用Dialer–界面和数据库整体分析][<a target="_blank" rel="noopener" href="https://blog.csdn.net/michael_yt/article/details/50816100]">https://blog.csdn.net/michael_yt/article/details/50816100]</a> ；</p>
+<p>[Android Dialer–通讯整体过程分析][<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_35427437/article/details/89968398]">https://blog.csdn.net/qq_35427437/article/details/89968398]</a> ;</p>
+<p>[Android M Dialer完全总结][<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/ca4ab4e9817f]">https://www.jianshu.com/p/ca4ab4e9817f]</a> ;</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/lance2016/p/6107376.html">Android7.0 拨号盘应用源码分析（一） 界面浅析</a> 。</p>
+<h2 id="Dialer模块"><a href="#Dialer模块" class="headerlink" title="Dialer模块"></a>Dialer模块</h2><h3 id="一、Dialer模块原理"><a href="#一、Dialer模块原理" class="headerlink" title="一、Dialer模块原理"></a>一、Dialer模块原理</h3><p>手机是一个通讯工具，而完成这一核心功能的软件模块，即为Telephony。<br> Telephony包含的范围非常广泛，单拿上层来说，大致可以划分成五大部分：Telephony应用（<code>Dialer</code>、<code>Contacts</code>、<code>Mms</code>），service Telephony和service Telecomm，framework Telephony和framework Telecomm。</p>
+<p>Dialer模块从宏观的角度去观察，其实可以将它认为就是一个拨号盘，因为它的主要作用就是键入字符串，至于这个字符串的作用可以有很多种，比如：拨号、暗码、快速拨号等等，当然Dialer还有其它的作用，比如：通话记录、通话相关设置、通话记录搜索等等一些细分的功能，这里我们先从一个宏观的角度去理解它。</p>
+<p>**1.**目录结构</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">alps/packages/apps/Dialer         &gt;Dialer (dialer进程 ）拨打电话的入口，来电不会经过Dialer。但是拨打电话的出口不光是Dialer，在联系人和短信里也有拨打电话的出口。</span><br><span class="line">alps/packages/apps/InCallUI       &gt;InCallUI (dialer进程)负责显示通话界面的信息，来电信息。</span><br><span class="line">alps/packages/apps/ContactsCommon &gt;与Contacts共用的代码</span><br><span class="line">alps/packages/apps/PhoneCommon    <span class="comment">#上述4个包下的代码编译生成Dialer.apk</span></span><br><span class="line">alps/packages/apps/VoiceDialer    <span class="comment">#提供语音相关功能</span></span><br><span class="line"></span><br><span class="line">alps/packages/services/Telecomm   &gt;Telecomm（system_process和telecomm:ui进程）处理Intent，发送广播，设置call的状态，audio状态。</span><br><span class="line">alps/packages/services/Telephony  &gt;Telephony ( phone进程)向下层传递拨号，注册了很多广播，申请很多权限，service data sms wap network等。</span><br><span class="line">alps/packages/services/Mms        <span class="comment">#上述3个，生成MmsService.apk，Telecom.apk与TeleService.apk，对Dialer来说是提供通话菜单功能的。</span></span><br><span class="line"></span><br><span class="line">alps/packages/providers/TelephonyProvider</span><br><span class="line">alps/packages/providers/ContactsProvider  <span class="comment">#数据创建及查询</span></span><br><span class="line"></span><br><span class="line">alps/framework/base/telecomm     &gt;telecomm（system_process）提供placeCall的接口，创建outgoingCall的connection，通知上层成功建立connection。</span><br><span class="line">alps/framework/opt/telephony     &gt;telephony（system_process）拨号也就是dial命令的下发，但是如果是Ims网络就会有下面一步。<span class="comment">#具体关系到各种功能点如MmiCode，Clear Code，Number match，Number format，DTMF，FDN等。</span></span><br><span class="line">                   </span><br><span class="line">alps/vendor/…/ims Ims Call       &gt;Vendor/ims (phone进程)创建ImsConnection，ImsCall，拨号。</span><br><span class="line">data/data/com.android.dialer/databases/dialer.db</span><br></pre></td></tr></table></figure>
+<p>**2.**框架结构</p>
+<p>如下图所示，只是框架上的一个大致结构, 在实际的流程中并不一定是自上而下或者自下而上的，也有可能跳过某个模块直接传递信息。</p>
+<p>比如在Dialer拨号的时候，就是直接调用framework/base/telecmm中TelecomManager的placeCall接口拨打电话。</p>
+<img src="/img/Android%E5%BC%80%E5%8F%91-Dialer/01.jpg" style="zoom:80%;" />
+
+
+
+<p>**3.**UI结构</p>
+<p><img src="/img/Android%E5%BC%80%E5%8F%91-Dialer/02.jpg"></p>
+<p>上图介绍了dialer里面主要的一些界面，可以通过AS等IDE工具或者通过AndroidManifest文件去查看其它相关的界面信息。</p>
+<p>下图是dialer的主界面DialtactsActivity,图中通过不同颜色的矩形和类名简单的对主界面进行的划分，可以通过相同颜色的矩形和类型，将它们一一对应起来。</p>
+<img src="/img/Android%E5%BC%80%E5%8F%91-Dialer/03.jpg" style="zoom:20%;" />
+
+
+
+<p>**4.**代码分析</p>
+<p>由于Android知识暂无，此处暂空，后续再写。</p>
+<p>附上Dialer里主要类图。</p>
+<p><img src="/img/Android%E5%BC%80%E5%8F%91-Dialer/04.png"></p>
+<h3 id="二、Dialer模块实例"><a href="#二、Dialer模块实例" class="headerlink" title="二、Dialer模块实例"></a>二、Dialer模块实例</h3><p>*<em>1.**现有bug需求：在拨号盘输入</em>#06#后，增加UUID全局唯一标识符显示。</p>
+<p>（1）bug重现</p>
+<img src="/img/Android%E5%BC%80%E5%8F%91-Dialer/05.jpg" style="zoom:8%;" />
+
+<p>（2）问题分析</p>
+<p>方法一：查阅网络资料得知，当用户在拨号盘输入*#06#后，会进入packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java。进入该.java文件查看源代码进行分析。</p>
+<p>方法二：在系统程序的根目录下（alps），用字符串查找指令，查找出含有IMEI字符串的文件。进入查找到的文件查看源代码进行分析。</p>
+<p>相关文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">alps/packages/apps/Dialer/src/com/android/dialer/SpecialCharSequenceMgr.java    </span><br><span class="line">alps/packages/apps/Dialer/src/com/android/dialer/dialpadview/res/layout/dialog_deviceids.xml   <span class="comment">#视图布局</span></span><br><span class="line">alps/packages/apps/Dialer/src/com/android/dialer/dialpadview/res/layout/row_deviceid.xml       <span class="comment">#视图布局</span></span><br><span class="line">R.java</span><br></pre></td></tr></table></figure>
+<p>在SpecialCharSequenceMgr.java中，定位到IMEI，查看代码，根据分析addDeviceIdRow（）方法实现的是一个文本框内容显示，实现了IMEI的显示。</p>
+<p>若需增加UUID全局唯一标识符显示，则需增加调用addDeviceIdRow（）方法实现UUID的显示。</p>
+<p>另外UUID的获取需要调用对应的获取方法。</p>
+<img src="/img/Android%E5%BC%80%E5%8F%91-Dialer/06.jpg" style="zoom:10%;" />
+
+<p>（3）修改代码</p>
+<p>增加以下代码。</p>
+<img src="/img/Android%E5%BC%80%E5%8F%91-Dialer/08.jpg" style="zoom:15%;" />
+
+<p>（4）编译、下载测试</p>
+<p>采用模块编译的方法，apk下载，测试发现显示变为三行，增加了“IMEI：”显示。</p>
+<p>因此需要将该文本改为获取UUID的方法，由于此bug仅作练习，此处不考虑获取代码。</p>
+<h3 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h3><p>不知道说啥，奥里给！……</p>
+<p><strong>觉得有帮助的朋友，不妨点个赞再走呗！ ╰(￣▽￣)╭ ~</strong></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/yelings.github.io/tags/Android/" rel="tag"># Android</a>
+          </div>
+
+        <script
+  async
+  src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"
+></script>
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/yelings.github.io/2021/03/06/Android%E5%BC%80%E5%8F%91-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" rel="prev" title="Android开发-环境搭建">
+      <i class="fa fa-chevron-left"></i> Android开发-环境搭建
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/yelings.github.io/2021/03/13/Android%E5%BC%80%E5%8F%91-Settings/" rel="next" title="Android开发-Settings">
+      Android开发-Settings <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="lv-container" data-id="city" data-uid="MTAyMC81MjQ5NC8yODk3Mg=="></div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Dialer%E6%A8%A1%E5%9D%97"><span class="nav-number">1.</span> <span class="nav-text">Dialer模块</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81Dialer%E6%A8%A1%E5%9D%97%E5%8E%9F%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">一、Dialer模块原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Dialer%E6%A8%A1%E5%9D%97%E5%AE%9E%E4%BE%8B"><span class="nav-number">1.2.</span> <span class="nav-text">二、Dialer模块实例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E8%AF%AD"><span class="nav-number">1.3.</span> <span class="nav-text">结语</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Ye Ling"
+      src="/yelings.github.io/images/touxiang.jpg">
+  <p class="site-author-name" itemprop="name">Ye Ling</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/yelings.github.io/archives/">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/yelings.github.io/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/yelings.github.io/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ye Ling</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/yelings.github.io/lib/anime.min.js"></script>
+  <script src="/yelings.github.io/lib/velocity/velocity.min.js"></script>
+  <script src="/yelings.github.io/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/yelings.github.io/js/utils.js"></script>
+
+<script src="/yelings.github.io/js/motion.js"></script>
+
+
+<script src="/yelings.github.io/js/schemes/pisces.js"></script>
+
+
+<script src="/yelings.github.io/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/yelings.github.io/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+NexT.utils.loadComments(document.querySelector('#lv-container'), () => {
+  window.livereOptions = {
+    refer: location.pathname.replace(CONFIG.root, '').replace('index.html', '')
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+});
+</script>
+
+</body>
+</html>
